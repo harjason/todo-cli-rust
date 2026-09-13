@@ -1,4 +1,3 @@
-use std::fmt::format;
 use std::fs::File;
 use std::fs;
 use std::io;
@@ -67,6 +66,15 @@ pub fn execute(operation: &String, args: &Vec<&String>){
         else{
             println!("Invalid command");
             println!("Try: todo complete");
+        }
+    }
+    else if operation == "delete-list"{
+        if args.len() == 0 {
+            let _ = delete_todo_list();
+        }
+        else{
+             println!("Invalid command");
+            println!("Try: todo delete-list");
         }
     }
     else{
@@ -169,6 +177,73 @@ pub fn show_todos_of_selected_list(){
     println!("{}",s);
 }
 
+
+
+/// delete a todo list
+pub fn delete_todo_list() -> std::io::Result<()>{
+     let paths = fs::read_dir("todos").unwrap();
+         let paths1 = fs::read_dir("todos").unwrap();
+
+     let mut total_lists = 0;
+    let mut number = 1;
+    let mut lists = Vec::new();
+    for path in paths{
+        total_lists += 1;
+        println!("{} - {}", number ,&path.unwrap().file_name().display());
+        number +=1;
+    }
+    for path in paths1{
+        lists.push(path.unwrap().file_name());
+    }
+    
+
+    if total_lists == 0{
+        println!("No list exists");
+    }
+    println!("0 - delete all");
+     print!("Enter index of list: ");
+     io::stdout().flush()?;
+
+
+     let mut i: usize = usize::MAX;
+    //make sure number entered is a non negative number and not a string
+     while i == usize::MAX || !(0..total_lists+1).contains(&i) {
+        let mut index = String::new();
+        io::stdin().read_line(&mut index)?;
+        i = index.trim().parse::<usize>().unwrap_or(usize::MAX);
+        if i == usize::MAX || !(0..total_lists+1).contains(&i) {
+            print!("Enter a valid number: ");
+        }
+        io::stdout().flush()?;
+    }
+
+
+    let selected_list = format!("{}.md", fs::read_to_string(".current")?);
+      if i == 0{
+        for  list in   lists{
+            let path = format!("todos/{}", list.clone().into_string().unwrap());
+            if selected_list == list.into_string().unwrap(){
+                fs::write(".current", "")?;
+            }
+           fs::remove_file(path)?;
+        }
+    }
+    // mark individual todo as complete
+    else {
+        i = i-1;
+        let listt = lists.remove(i);
+         let path = format!("todos/{}", listt.clone().into_string().unwrap());
+         if selected_list == listt.into_string().unwrap(){
+                fs::write(".current", "")?;
+        }
+         fs::remove_file(path)?
+    }
+
+
+    Ok(())
+}
+
+
 /// mark todos as complete
 pub fn complete_todos() -> std::io::Result<()>{
     let current_list_name = fs::read_to_string(".current").unwrap();
@@ -185,7 +260,7 @@ pub fn complete_todos() -> std::io::Result<()>{
         number += 1;
     }
     println!("0 - complete all");
-    print!("Enter index of todo(s): ");
+    print!("Enter index of todo: ");
     io::stdout().flush()?;
 
     let mut i: usize = usize::MAX;
@@ -202,7 +277,7 @@ pub fn complete_todos() -> std::io::Result<()>{
 
     // mark all todos as complete
     if i == 0{
-        for mut todo in &mut  todos{
+        for  todo in &mut  todos{
             todo.remove(1);
            todo.insert(1,'x');
             
@@ -212,10 +287,10 @@ pub fn complete_todos() -> std::io::Result<()>{
     // mark individual todo as complete
     else {
         i = i - 1;
-        let mut todo = &mut todos[i];
+        let  todo = &mut todos[i];
         todo.remove(1);
         todo.insert(1,'x');
-        for mut todo in &mut todos{
+        for  todo in &mut todos{
             println!("{}", todo);
         }
     }
@@ -231,6 +306,3 @@ pub fn complete_todos() -> std::io::Result<()>{
 
     Ok(())
 }
-
-
-
