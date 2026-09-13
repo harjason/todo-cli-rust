@@ -1,5 +1,14 @@
 # A minimal markdown based todo list in terminal for arch linux
 ## Installation
+1. Clone the repo 
+```bash
+git clone https://github.com/harjason/todo-cli-rust
+cd todo-cli-rust
+```
+2. Install using Cargo
+```
+cargo install --path .
+```
 ## Usage
 * Create a todo list
 ```bash
