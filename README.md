@@ -6,8 +6,12 @@ git clone https://github.com/harjason/todo-cli-rust
 cd todo-cli-rust
 ```
 2. Install using Cargo
-```
+```bash
 cargo install --path .
+```
+3. Verify installation
+```bash
+todo --version
 ```
 ## Usage
 * Create a todo list
