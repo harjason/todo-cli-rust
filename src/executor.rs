@@ -77,6 +77,15 @@ pub fn execute(operation: &String, args: &Vec<&String>){
             println!("Try: todo delete-list");
         }
     }
+    else if operation == "clear-list"{
+        if args.len() == 0 {
+            let _ = clear_list();
+        }
+        else{
+             println!("Invalid command");
+            println!("Try: todo clear-list");
+        }
+    }
     else{
         println!("Invalid command");
         println!("Try: todo --help");
@@ -178,13 +187,12 @@ pub fn show_todos_of_selected_list(){
 }
 
 
-
 /// delete a todo list
 pub fn delete_todo_list() -> std::io::Result<()>{
-     let paths = fs::read_dir("todos").unwrap();
-         let paths1 = fs::read_dir("todos").unwrap();
+    let paths = fs::read_dir("todos").unwrap();
+    let paths1 = fs::read_dir("todos").unwrap();
 
-     let mut total_lists = 0;
+    let mut total_lists = 0;
     let mut number = 1;
     let mut lists = Vec::new();
     for path in paths{
@@ -200,7 +208,9 @@ pub fn delete_todo_list() -> std::io::Result<()>{
     if total_lists == 0{
         println!("No list exists");
     }
-    println!("0 - delete all");
+    else{
+        println!("0 - delete all");
+    
      print!("Enter index of list: ");
      io::stdout().flush()?;
 
@@ -239,7 +249,64 @@ pub fn delete_todo_list() -> std::io::Result<()>{
          fs::remove_file(path)?
     }
 
+    }
+    Ok(())
+}
 
+
+/// delete all todos of a todo list
+pub fn clear_list() ->std::io::Result<()>{
+    let paths = fs::read_dir("todos").unwrap();
+    let paths1 = fs::read_dir("todos").unwrap();
+
+    let mut total_lists = 0;
+    let mut number = 1;
+    let mut lists = Vec::new();
+    for path in paths{
+        total_lists += 1;
+        println!("{} - {}", number ,&path.unwrap().file_name().display());
+        number +=1;
+    }
+    for path in paths1{
+        lists.push(path.unwrap().file_name());
+    }
+    
+
+    if total_lists == 0{
+        println!("No list exists");
+    }
+    else{
+        println!("0 - clear all");
+    
+     print!("Enter index of list: ");
+     io::stdout().flush()?;
+
+
+     let mut i: usize = usize::MAX;
+    //make sure number entered is a non negative number and not a string
+     while i == usize::MAX || !(0..total_lists+1).contains(&i) {
+        let mut index = String::new();
+        io::stdin().read_line(&mut index)?;
+        i = index.trim().parse::<usize>().unwrap_or(usize::MAX);
+        if i == usize::MAX || !(0..total_lists+1).contains(&i) {
+            print!("Enter a valid number: ");
+        }
+        io::stdout().flush()?;
+    }
+
+
+    if i == 0 {
+        for  list in   lists{
+            let path = format!("todos/{}", list.clone().into_string().unwrap());
+            fs::write(path, "")?;
+        }
+    }else{
+        i = i-1;
+        let listt = lists.remove(i);
+        let path = format!("todos/{}", listt.clone().into_string().unwrap());
+        fs::write(path, "")?;
+    }
+    }
     Ok(())
 }
 
