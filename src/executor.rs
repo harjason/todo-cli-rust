@@ -91,6 +91,9 @@ pub fn execute(operation: &String, args: &Vec<&String>){
     else if operation == "--help"{
         help();
     }
+    else if operation == "--version" {
+        println!("1.0.0");
+    }
     else{
         println!("Invalid command");
         println!("Try: todo help");
