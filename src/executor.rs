@@ -88,7 +88,7 @@ pub fn execute(operation: &String, args: &Vec<&String>){
             println!("Try: todo clear-list");
         }
     }
-    else if operation == "help"{
+    else if operation == "--help"{
         help();
     }
     else{
@@ -196,10 +196,15 @@ pub fn add(todos: &Vec<&String>) -> std::io::Result<()> {
 /// Show entire selected todo list
 pub fn show_todos_of_selected_list(){
     let current_list_name = fs::read_to_string(".current").unwrap();
+    if current_list_name == ""{
+        println!("No selected todo list")
+    }
+    else{
     let path = format!("todos/{}.md", current_list_name);
     println!("list: {}", path);
     let s = fs::read_to_string(path).unwrap();
     println!("{}",s);
+    }
 }
 
 
