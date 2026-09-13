@@ -93,7 +93,7 @@ pub fn execute(operation: &String, args: &Vec<&String>){
     }
     else{
         println!("Invalid command");
-        println!("Try: todo --help");
+        println!("Try: todo help");
     }
 }
 
