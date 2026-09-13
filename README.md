@@ -1,14 +1,13 @@
+## Usage
 
-## Usage 
-
-Creating a todo list 
+Creating a todo list
 
 ```
 # create a todo list
-todo create-list [listname] 
+todo create-list [listname]
 ```
 
-Selecting a todo list to operate on 
+Selecting a todo list to operate on
 
 ```
 # select a todo list
@@ -18,7 +17,7 @@ todo set [listname]
 Displaying selected todo list
 
 ```
-# show selected todo list
+# show name of selected todo list
 todo list
 ```
 
@@ -39,3 +38,8 @@ todo add "your todo"
 todo add "todo 1" "todo 2" "todo 3"
 ```
 
+Show all todos in selected todo list
+
+```
+todo show
+```
