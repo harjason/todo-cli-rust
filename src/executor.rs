@@ -8,25 +8,22 @@ use std::io::Result;
 use std::io::BufReader;
 
 pub fn execute(operation: &String, args: &Vec<&String>){
-    //create a todo list
     if operation == "create-list"{
         if args.len() == 1{ let _list =  create_list(args[0]);}
         else {
-            println!("Wrong command");
-            println!("Try \"todo create-list [listname]\" ");
+            println!("Invalid command");
+            println!("Try: todo create-list [listname]");
         }
     }
-    //show all lists 
     else if operation == "lists"{
         if args.len() == 0{
            let _ = show_all_lists();
         }
         else{
             println!("Invalid command");
-            println!("Did you mean \"todo lists\" ?");
+            println!("Try: todo lists");
         }
     }
-    //show selected todo list
     else if operation == "list"{
         if args.len() == 0
         {
@@ -34,21 +31,26 @@ pub fn execute(operation: &String, args: &Vec<&String>){
         }
         else{
             println!("Invalid command");
-            println!("Did you mean \"todo list\" ?");
+            println!("Try: todo list");
         }
     }
-    //select a todo list
     else if operation == "set"{
         if args.len() == 1{
            select_list(args[0]) 
         }
         else{
             println!("Invalid command");
-            println!("Did you mean \"todo set [list name]\" ?");
+            println!("Try: todo set [list name]");
         }
     }
     else if operation == "add"{
-        let _ = add(args);
+        if args.len() == 0{
+            println!("Invalid command");
+            println!("Try: todo add \"todo1\" \"todo2\"");
+        }
+        else{
+            let _ = add(args);
+        }
     }
     else if operation == "show"{
         if args.len() == 0 {
@@ -86,6 +88,9 @@ pub fn execute(operation: &String, args: &Vec<&String>){
             println!("Try: todo clear-list");
         }
     }
+    else if operation == "help"{
+        help();
+    }
     else{
         println!("Invalid command");
         println!("Try: todo --help");
@@ -115,10 +120,19 @@ pub fn create_list(file_name: &String) -> Result<()>{
 /// Show all existing todo lists
 pub fn show_all_lists(){
     let paths = fs::read_dir("todos").unwrap();
+    let current = fs::read_to_string(".current").unwrap();
     let mut total_lists = 0;
+    let mut index =1;
     for path in paths{
         total_lists += 1;
-        println!("{}", path.unwrap().file_name().display());
+        let reff =  &path.unwrap().file_name().into_string().unwrap();
+        if &format!("{}.md", current) == reff{
+            println!("* - {}", reff);
+        }
+        else{
+            println!("{} - {}", index, reff);
+        }
+        index += 1;
     }
     if total_lists == 0{
         println!("No list exists");
@@ -136,7 +150,7 @@ pub fn show_selected_list(){
             println!("No list selected");
         }
         else{
-            println!("{}", selected_list);
+            println!("todos/{}.md", selected_list);
         }
     }
 }
@@ -160,6 +174,7 @@ pub fn select_list(list_name: &String) {
     }
     else{
         println!("Todolist \"{}\" does not exist.", list_name);
+        println!("Make sure you didnt include .md file extension in the command.")
     }
 }
 
@@ -173,6 +188,7 @@ pub fn add(todos: &Vec<&String>) -> std::io::Result<()> {
         let t = format!("[ ] {}", todo);
         writeln!(&mut list, "{}",t)?;
     }
+    show_todos_of_selected_list();
     Ok(())
 }
 
@@ -235,6 +251,7 @@ pub fn delete_todo_list() -> std::io::Result<()>{
             if selected_list == list.into_string().unwrap(){
                 fs::write(".current", "")?;
             }
+           println!("{} deleted !", path);
            fs::remove_file(path)?;
         }
     }
@@ -246,6 +263,7 @@ pub fn delete_todo_list() -> std::io::Result<()>{
          if selected_list == listt.into_string().unwrap(){
                 fs::write(".current", "")?;
         }
+        println!("{} deleted!", path);
          fs::remove_file(path)?
     }
 
@@ -298,12 +316,14 @@ pub fn clear_list() ->std::io::Result<()>{
     if i == 0 {
         for  list in   lists{
             let path = format!("todos/{}", list.clone().into_string().unwrap());
+            println!("{} cleared !", path);
             fs::write(path, "")?;
         }
     }else{
         i = i-1;
         let listt = lists.remove(i);
         let path = format!("todos/{}", listt.clone().into_string().unwrap());
+        println!("{} cleared !", path);
         fs::write(path, "")?;
     }
     }
@@ -311,13 +331,27 @@ pub fn clear_list() ->std::io::Result<()>{
 }
 
 
+//help
+pub fn help(){
+    println!("todo - A minimal markdown based todolist for arch linux");
+    println!("Commands");
+    println!("\tcreate-list               Create a todo list");
+    println!("\tlists                     Show all todo lists");
+    println!("\tlist                      Show selected todo list");
+    println!("\tset                       Select a todo list");
+    println!("\tadd                       Add todo(s) to selected list");
+    println!("\tcomplete                  Complete todo(s) in selected list");
+    println!("\tdelete-list               Delete todo list(s)");
+    println!("\tclear-list                Clear todo list(s)");
+}
+
 /// mark todos as complete
 pub fn complete_todos() -> std::io::Result<()>{
     let current_list_name = fs::read_to_string(".current").unwrap();
     let path = format!("todos/{}.md", current_list_name);
 
     let f = File::open(&path)?;
-    let mut reader = BufReader::new(f);
+    let reader = BufReader::new(f);
     let mut todos: Vec<String> = Vec::new();
     let mut number:i32 = 1;
     for line in reader.lines(){
