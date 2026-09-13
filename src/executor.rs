@@ -338,6 +338,7 @@ pub fn help(){
     println!("\tcreate-list               Create a todo list");
     println!("\tlists                     Show all todo lists");
     println!("\tlist                      Show selected todo list");
+    println!("\tshow                      Show all todos in selected list");
     println!("\tset                       Select a todo list");
     println!("\tadd                       Add todo(s) to selected list");
     println!("\tcomplete                  Complete todo(s) in selected list");
