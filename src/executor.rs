@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::fs;
+use std::io::Write;
 use std::path::PathBuf;
 use std::io::Result;
 
@@ -44,6 +45,7 @@ pub fn execute(operation: &String, args: &Vec<&String>){
         }
     }
     else if operation == "add"{
+        let _ = add(args);
     }
     else{
         println!("Invalid command");
@@ -120,4 +122,17 @@ pub fn select_list(list_name: &String) {
     else{
         println!("Todolist \"{}\" does not exist.", list_name);
     }
+}
+
+
+/// Add a todo
+pub fn add(todos: &Vec<&String>) -> std::io::Result<()> {
+    let list_file_name = fs::read_to_string(".current").unwrap();
+    let path = format!("todos/{}.md", list_file_name);
+    let mut list = File::options().append(true).open(&path)?;
+    for todo in todos{
+        let t = format!("[ ] {}", todo);
+        writeln!(&mut list, "{}",t)?;
+    }
+    Ok(())
 }
