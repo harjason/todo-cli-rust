@@ -1,8 +1,12 @@
+use std::fmt::format;
 use std::fs::File;
 use std::fs;
+use std::io;
+use std::io::BufRead;
 use std::io::Write;
 use std::path::PathBuf;
 use std::io::Result;
+use std::io::BufReader;
 
 pub fn execute(operation: &String, args: &Vec<&String>){
     //create a todo list
@@ -46,6 +50,24 @@ pub fn execute(operation: &String, args: &Vec<&String>){
     }
     else if operation == "add"{
         let _ = add(args);
+    }
+    else if operation == "show"{
+        if args.len() == 0 {
+            show_todos_of_selected_list();
+        }
+        else{
+            println!("Invalid command");
+            println!("Try: todo show");
+        }
+    }
+    else if operation == "complete"{
+        if args.len() == 0{
+            let _ = complete_todos();
+        }
+        else{
+            println!("Invalid command");
+            println!("Try: todo complete");
+        }
     }
     else{
         println!("Invalid command");
@@ -125,7 +147,7 @@ pub fn select_list(list_name: &String) {
 }
 
 
-/// Add a todo
+/// Add a todo(s) to selected todo list
 pub fn add(todos: &Vec<&String>) -> std::io::Result<()> {
     let list_file_name = fs::read_to_string(".current").unwrap();
     let path = format!("todos/{}.md", list_file_name);
@@ -136,3 +158,79 @@ pub fn add(todos: &Vec<&String>) -> std::io::Result<()> {
     }
     Ok(())
 }
+
+
+/// Show entire selected todo list
+pub fn show_todos_of_selected_list(){
+    let current_list_name = fs::read_to_string(".current").unwrap();
+    let path = format!("todos/{}.md", current_list_name);
+    println!("list: {}", path);
+    let s = fs::read_to_string(path).unwrap();
+    println!("{}",s);
+}
+
+/// mark todos as complete
+pub fn complete_todos() -> std::io::Result<()>{
+    let current_list_name = fs::read_to_string(".current").unwrap();
+    let path = format!("todos/{}.md", current_list_name);
+
+    let f = File::open(&path)?;
+    let mut reader = BufReader::new(f);
+    let mut todos: Vec<String> = Vec::new();
+    let mut number:i32 = 1;
+    for line in reader.lines(){
+        let todo = line?;
+        println!("{} - {}" , number, todo);
+        todos.push(todo);
+        number += 1;
+    }
+    println!("0 - complete all");
+    print!("Enter index of todo(s): ");
+    io::stdout().flush()?;
+
+    let mut i: usize = usize::MAX;
+    //make sure number entered is a non negative number and not a string
+    while i == usize::MAX || !(0..todos.len()+1).contains(&i) {
+        let mut index = String::new();
+        io::stdin().read_line(&mut index)?;
+        i = index.trim().parse::<usize>().unwrap_or(usize::MAX);
+        if i == usize::MAX || !(0..todos.len()+1).contains(&i) {
+            print!("Enter a valid number: ");
+        }
+        io::stdout().flush()?;
+    }
+
+    // mark all todos as complete
+    if i == 0{
+        for mut todo in &mut  todos{
+            todo.remove(1);
+           todo.insert(1,'x');
+            
+            println!("{}", todo);
+        }
+    }
+    // mark individual todo as complete
+    else {
+        i = i - 1;
+        let mut todo = &mut todos[i];
+        todo.remove(1);
+        todo.insert(1,'x');
+        for mut todo in &mut todos{
+            println!("{}", todo);
+        }
+    }
+
+
+   let _ = fs::write(&path, "");
+    
+    let mut list = File::options().append(true).open(&path)?;
+    for todo in todos{
+        writeln!(&mut list, "{}",todo)?;
+    }
+    
+
+    Ok(())
+}
+
+
+
