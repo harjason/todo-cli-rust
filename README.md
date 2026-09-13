@@ -1,45 +1,39 @@
+# A minimal markdown based todo list in terminal for arch linux
+## Installation
 ## Usage
-
-Creating a todo list
-
+* Create a todo list
+```bash
+todo create-list [list name]
 ```
-# create a todo list
-todo create-list [listname]
+* Delete todo list(s)
+```bash
+todo delete-list
 ```
-
-Selecting a todo list to operate on
-
+* Clear all todos in  todo list(s)
+```bash
+todo clear-list
 ```
-# select a todo list
-todo set [listname]
-```
-
-Displaying selected todo list
-
-```
-# show name of selected todo list
-todo list
-```
-
-Displaying all todo lists
-
-```
-# show all todo lists
+* Show names of all todo lists
+```bash
 todo lists
 ```
-
-Adding todos to a todo list
-
+* Show name of selected todo list
+```bash
+todo list
 ```
-# add a todo to the current list
-todo add "your todo"
-
-# add multiple todos
-todo add "todo 1" "todo 2" "todo 3"
-```
-
-Show all todos in selected todo list
-
-```
+* Show todos in selected todo list
+```bash
 todo show
+```
+* Select a todo list
+```bash
+todo set [list name]
+```
+* Add todo(s) to selected list
+```bash
+todo add "todo one" "todo two" "todo three"
+```
+* Complete todo(s)
+```bash
+todo complete
 ```
