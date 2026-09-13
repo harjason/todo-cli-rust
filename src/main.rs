@@ -6,7 +6,7 @@ pub mod parser;
 pub mod executor;
 
 fn main() -> std::io::Result<()> {
-    let mut path = PathBuf::from("todos");
+    let path = PathBuf::from("todos");
     if !path.exists(){
         fs::create_dir("todos")?;
     }
